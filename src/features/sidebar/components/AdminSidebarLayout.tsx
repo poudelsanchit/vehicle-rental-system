@@ -39,7 +39,7 @@ export function AdminSidebarLayout({ children }: { children: React.ReactNode }) 
                                 <>
                                     <BreadcrumbSeparator className="hidden md:block" />
                                     <BreadcrumbItem>
-                                        <BreadcrumbLink className="text-primary-foreground">
+                                        <BreadcrumbLink >
                                             {pathname === "/admin"
                                                 ? "users"
                                                 : pathname.split("/")[2]}

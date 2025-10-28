@@ -6,7 +6,7 @@ import { getServerSession } from "next-auth";
 type UserUpdate = {
   id: string;
   isVerified: boolean;
-  role: "SUPER_ADMIN" | "ADMIN" | "STAFF";
+  role: "ADMIN" | "OWNER" | "USER";
 };
 
 type UpdateUsersResult = {
@@ -28,7 +28,7 @@ export async function fetchAllUsers() {
     });
 
     // Only super admin can access
-    if (requestingUser?.role !== "SUPER_ADMIN") {
+    if (requestingUser?.role !== "ADMIN") {
       return { error: "Forbidden", success: false };
     }
 
@@ -73,7 +73,7 @@ export async function updateUsers(
     });
 
     // Only super admin can access
-    if (requestingUser?.role !== "SUPER_ADMIN") {
+    if (requestingUser?.role !== "ADMIN") {
       return {
         success: false,
         error: "Forbidden",

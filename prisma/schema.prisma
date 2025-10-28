@@ -12,13 +12,13 @@ model User {
   username   String   @unique
   email      String   @unique
   password   String
-  role       Role     @default(STAFF)
+  role       Role     @default(USER)
   isVerified Boolean  @default(false)
   createdAt  DateTime @default(now())
 }
 
 enum Role {
-  SUPER_ADMIN
   ADMIN
-  STAFF
+  OWNER
+  USER
 }

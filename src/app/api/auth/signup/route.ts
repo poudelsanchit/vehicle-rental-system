@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
         username,
         email,
         password: hashedPassword,
-        role: "STAFF", // Explicitly set role; super admin can change the role afterwards
+        role: "USER", // Explicitly set role; super admin can change the role afterwards
         isVerified: false, // Default until approved by super admin
       },
     });

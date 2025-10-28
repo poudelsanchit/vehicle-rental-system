@@ -29,7 +29,7 @@ export function useUserManagement(usersData?: IUser[]) {
 
   const updateUserRole = (
     userId: string,
-    role: "SUPER_ADMIN" | "ADMIN" | "STAFF"
+    role: "ADMIN" | "OWNER" | "USER"
   ) => {
     if (userId === currentUserId) {
       toast.error("You cannot change your own role.");

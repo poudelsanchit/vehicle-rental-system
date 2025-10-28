@@ -42,24 +42,24 @@ interface IProps {
     onVerificationChange?: (userId: string, isVerified: boolean) => void;
     onRoleChange?: (
         userId: string,
-        role: "SUPER_ADMIN" | "ADMIN" | "STAFF"
+        role: "ADMIN" | "OWNER" | "USER"
     ) => void;
     currentUserId?: string;
 }
 
 const roleConfig = {
-    SUPER_ADMIN: {
+    ADMIN: {
         label: "Super Admin",
         color: "bg-red-100 text-red-800 hover:bg-red-200",
         darkColor: "dark:bg-red-900 dark:text-red-300",
     },
-    ADMIN: {
-        label: "Admin",
+    OWNER: {
+        label: "Owner",
         color: "bg-blue-100 text-blue-800 hover:bg-blue-200",
         darkColor: "dark:bg-blue-900 dark:text-blue-300",
     },
-    STAFF: {
-        label: "Staff",
+    USER: {
+        label: "User",
         color: "bg-green-100 text-green-800 hover:bg-green-200",
         darkColor: "dark:bg-green-900 dark:text-green-300",
     },
@@ -69,7 +69,7 @@ export function createColumns(
     onVerificationChange?: (userId: string, isVerified: boolean) => void,
     onRoleChange?: (
         userId: string,
-        role: "SUPER_ADMIN" | "ADMIN" | "STAFF"
+        role: "ADMIN" | "OWNER" | "USER"
     ) => void,
     currentUserId?: string
 ): ColumnDef<IUser>[] {
@@ -165,7 +165,7 @@ export function createColumns(
             },
             cell: ({ row }) => {
                 const user = row.original;
-                const role = row.getValue("role") as "SUPER_ADMIN" | "ADMIN" | "STAFF";
+                const role = row.getValue("role") as "ADMIN" | "OWNER" | "USER";
                 const config = roleConfig[role];
                 const isCurrentUser = user.id === currentUserId;
 
@@ -193,7 +193,7 @@ export function createColumns(
                                     onValueChange={(newRole) => {
                                         onRoleChange?.(
                                             user.id,
-                                            newRole as "SUPER_ADMIN" | "ADMIN" | "STAFF"
+                                            newRole as "ADMIN" | "OWNER" | "USER"
                                         );
                                     }}
                                 >
@@ -280,10 +280,10 @@ export function createColumns(
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem
                                         onClick={() => {
-                                            const roles: ("SUPER_ADMIN" | "ADMIN" | "STAFF")[] = [
-                                                "STAFF",
+                                            const roles: ("ADMIN" | "OWNER" | "USER")[] = [
+                                                "USER",
+                                                "OWNER",
                                                 "ADMIN",
-                                                "SUPER_ADMIN",
                                             ];
                                             const currentIndex = roles.indexOf(user.role);
                                             const nextRole = roles[(currentIndex + 1) % roles.length];
@@ -292,10 +292,10 @@ export function createColumns(
                                     >
                                         Cycle Role ({roleConfig[user.role].label} →{" "}
                                         {(() => {
-                                            const roles: ("SUPER_ADMIN" | "ADMIN" | "STAFF")[] = [
-                                                "STAFF",
+                                            const roles: ("ADMIN" | "OWNER" | "USER")[] = [
+                                                "USER",
+                                                "OWNER",
                                                 "ADMIN",
-                                                "SUPER_ADMIN",
                                             ];
                                             const currentIndex = roles.indexOf(user.role);
                                             const nextRole = roles[(currentIndex + 1) % roles.length];

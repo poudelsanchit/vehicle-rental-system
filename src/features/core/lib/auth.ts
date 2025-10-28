@@ -44,11 +44,14 @@ export const authOptions: NextAuthOptions = {
           where: { email: token.email },
         });
 
-        if (dbUser) {
-          token.userId = dbUser.id.toString();
-          token.isVerified = dbUser.isVerified;
-          token.role = dbUser.role;
+        if (!dbUser) {
+          // User doesn't exist in DB, return empty token to log them out
+          return {};
         }
+
+        token.userId = dbUser.id.toString();
+        token.isVerified = dbUser.isVerified;
+        token.role = dbUser.role;
       }
       return token;
     },

@@ -1,7 +1,7 @@
 export interface IUser {
   id: string;
   username: string;
-  role: "SUPER_ADMIN" | "ADMIN" | "STAFF";
+  role: "ADMIN" | "OWNER" | "USER";
   email: string;
   isVerified: boolean;
   createdAt: Date;
@@ -10,5 +10,5 @@ export interface IUser {
 export interface IUserUpdate {
   id: string;
   isVerified: boolean;
-  role: "SUPER_ADMIN" | "ADMIN" | "STAFF";
+  role: "ADMIN" | "OWNER" | "USER";
 }

@@ -1,10 +1,10 @@
 // constants.ts
-import { Building, Settings, User } from "lucide-react";
+import { Car, Settings, User } from "lucide-react";
 
 export const headerData = {
-  name: "Project Management System",
-  logo: Building,
-  description: "Super Admin Panel",
+  name: "Go Gadi",
+  logo: Car,
+  description: "Admin Panel",
 };
 
 export const navMainData = {

@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -8,9 +8,12 @@ export async function middleware(request: NextRequest) {
     secret: process.env.NEXTAUTH_SECRET,
   });
 
-  // Redirect unauthenticated owners away from protected routes
+  // Check if token is valid (has userId or email)
+  const isValidToken = token && (token.userId || token.email);
+
+  // Redirect unauthenticated users away from protected routes
   if (
-    !token &&
+    !isValidToken &&
     (pathname.startsWith("/owner") ||
       pathname.startsWith("/admin") ||
       pathname.startsWith("/user") ||
@@ -19,9 +22,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // Redirect authenticated owners away from auth pages or home
+  // Redirect authenticated users away from auth pages or home
   if (
-    token &&
+    isValidToken &&
     (pathname === "/" || pathname.startsWith("/auth")) &&
     !pathname.startsWith("/admin") &&
     !pathname.startsWith("/owner") &&
@@ -29,29 +32,29 @@ export async function middleware(request: NextRequest) {
     !pathname.startsWith("/verification")
   ) {
     const redirectUrl = token.isVerified
-      ? token.role === "SUPER_ADMIN"
+      ? token.role === "ADMIN"
         ? "/admin"
-        : token.role === "ADMIN"
-        ? "owner"
+        : token.role === "OWNER"  // Fixed: was checking ADMIN twice
+        ? "/owner"
         : "/user"
       : "/verification";
     return NextResponse.redirect(new URL(redirectUrl, request.url));
   }
 
-  // Prevent verified owners from accessing verification page
+  // Prevent verified users from accessing verification page
   if (token?.isVerified && pathname.startsWith("/verification")) {
     const redirectUrl =
-      token.role === "SUPER_ADMIN"
+      token.role === "ADMIN"
         ? "/admin"
-        : token.role === "ADMIN"
+        : token.role === "OWNER"  // Fixed: was checking ADMIN twice
         ? "/owner"
         : "/user";
     return NextResponse.redirect(new URL(redirectUrl, request.url));
   }
 
-  // Prevent unverified owners from accessing owner and admin routes
+  // Prevent unverified users from accessing protected routes
   if (
-    token &&
+    isValidToken &&
     !token.isVerified &&
     (pathname.startsWith("/owner") ||
       pathname.startsWith("/admin") ||
@@ -60,27 +63,24 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/verification", request.url));
   }
 
-  // Role-based access control for verified owners
-  if (token?.isVerified) {
-    // admin can only access /admin, redirect from /owner
+  // Role-based access control for verified users
+  if (isValidToken && token?.isVerified) {
     if (
-      token.role === "SUPER_ADMIN" &&
+      token.role === "ADMIN" &&
       (pathname.startsWith("/owner") || pathname.startsWith("/user"))
     ) {
       return NextResponse.redirect(new URL("/admin", request.url));
     }
 
-    // Admin (or any other role) can only access /owner, redirect from /admin
     if (
-      token.role === "ADMIN" &&
+      token.role === "OWNER" &&
       (pathname.startsWith("/admin") || pathname.startsWith("/user"))
     ) {
       return NextResponse.redirect(new URL("/owner", request.url));
     }
 
-    // Admin (or any other role) can only access /owner, redirect from /admin
     if (
-      token.role === "STAFF" &&
+      token.role === "USER" &&
       (pathname.startsWith("/admin") || pathname.startsWith("/owner"))
     ) {
       return NextResponse.redirect(new URL("/user", request.url));
