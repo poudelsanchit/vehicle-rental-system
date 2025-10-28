@@ -17,6 +17,7 @@ export const authOptions: NextAuthOptions = {
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
+          include: { kyc: true }, // Include KYC data
         });
 
         if (!user || !user.password) return null;
@@ -29,6 +30,7 @@ export const authOptions: NextAuthOptions = {
           name: user.username,
           email: user.email,
           isVerified: user.isVerified,
+          kycStatus: user.kyc?.status, // Add KYC status
         };
       },
     }),
@@ -42,6 +44,7 @@ export const authOptions: NextAuthOptions = {
       if (token.email) {
         const dbUser = await prisma.user.findUnique({
           where: { email: token.email },
+          include: { kyc: true }, // Include KYC data
         });
 
         if (!dbUser) {
@@ -52,6 +55,7 @@ export const authOptions: NextAuthOptions = {
         token.userId = dbUser.id.toString();
         token.isVerified = dbUser.isVerified;
         token.role = dbUser.role;
+        token.kycStatus = dbUser.kyc?.status; // Add KYC status to token
       }
       return token;
     },
@@ -60,6 +64,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.userId as string;
         session.user.isVerified = token.isVerified;
         session.user.role = token.role;
+        session.user.kycStatus = token.kycStatus; // Add KYC status to session
       }
       return session;
     },

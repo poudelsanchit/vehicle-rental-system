@@ -37,7 +37,7 @@ export function FormInput<T extends FieldValues>({
             name={name}
             render={({ field }) => (
                 <FormItem>
-                    <Label className="font-medium">{label}</Label>
+                    <Label className="font-medium">{label} </Label>
                     <FormControl>
                         <div className="relative">
                             {icon && (

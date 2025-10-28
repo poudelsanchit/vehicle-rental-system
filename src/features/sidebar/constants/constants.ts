@@ -1,5 +1,5 @@
 // constants.ts
-import { Car, Settings, User } from "lucide-react";
+import { Car, Settings, User, Verified } from "lucide-react";
 
 export const headerData = {
   name: "Go Gadi",
@@ -13,6 +13,11 @@ export const navMainData = {
       title: "Users",
       url: "/admin",
       icon: User,
+    },
+    {
+      title: "KYC Verification",
+      url: "/admin/kyc",
+      icon: Verified,
     },
     {
       title: "Settings",

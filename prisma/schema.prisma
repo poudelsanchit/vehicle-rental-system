@@ -15,10 +15,107 @@ model User {
   role       Role     @default(USER)
   isVerified Boolean  @default(false)
   createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  kyc        KYC?
+  vehicles   Vehicle[]
+}
+
+model KYC {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Personal Info
+  fullName        String
+  dateOfBirth     DateTime
+  gender          Gender
+  nationality     String
+  phoneNumber     String
+  currentAddress  String
+  permanentAddress String?
+  
+  // Documents - All users
+  profilePhotoUrl       String?
+  identityType          IdentityDocType // NID/Citizenship
+  identityNumber        String
+  identityPhotoUrl      String // Front photo
+  identityBackPhotoUrl  String? // Back photo if applicable
+  
+  // Driver's License - For renters
+  licenseNumber         String?
+  licenseExpiryDate     DateTime?
+  licenseFrontPhotoUrl  String?
+  licenseBackPhotoUrl   String?
+  
+  // Emergency Contact
+  emergencyContactName  String
+  emergencyContactPhone String
+  emergencyContactRelation String
+  
+  
+  // Verification
+  status            KYCStatus @default(PENDING)
+  rejectionReason   String?
+  verifiedAt        DateTime?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Vehicle {
+  id          String   @id @default(uuid())
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  
+  // Basic Info
+  make        String
+  model       String
+  year        Int
+  plateNumber String   @unique
+  dailyRate   Decimal  @db.Decimal(10, 2)
+  
+  // Documents
+  registrationNumber    String
+  bluebookPhotoUrl      String // Registration certificate
+  roadTaxPhotoUrl       String
+  ownershipProofUrl     String
+  
+  // Photos (JSON array of photo URLs)
+  photoUrls             String[] // Multiple vehicle photos
+  
+  // Verification
+  status            KYCStatus @default(PENDING)
+  verifiedAt        DateTime?
+  
+  isAvailable Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([ownerId])
 }
 
 enum Role {
   ADMIN
   OWNER
   USER
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum IdentityDocType {
+  NATIONAL_ID
+  CITIZENSHIP
+  PASSPORT
+}
+
+enum KYCStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }

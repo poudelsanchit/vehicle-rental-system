@@ -8,10 +8,11 @@ import {
     CardHeader,
     CardTitle,
 } from "@/features/core/components/card";
-import { Form } from "@/features/core/components/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/features/core/components/form";
 import { Button } from "@/features/core/components/button";
 import { useSignup } from "../hooks/useSignup";
 import { FormInput } from "@/features/core/components/FormInput";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/features/core/components/select";
 
 export default function SignupPage() {
     const { loading, onSubmit, form } = useSignup();
@@ -55,6 +56,32 @@ export default function SignupPage() {
                                 placeholder="Create a secure password"
                                 icon={<Lock className="text-muted-foreground" size={18} />}
 
+                            />
+                            <FormField
+                                control={form.control}
+                                name="role"
+                                render={({ field }) => (
+                                    <FormItem className="w-full">
+                                        <FormLabel>
+                                            Role
+                                        </FormLabel>
+                                        <Select
+                                            onValueChange={field.onChange}
+                                            defaultValue={field.value}
+                                        >
+                                            <FormControl>
+                                                <SelectTrigger className="w-full">
+                                                    <SelectValue placeholder="Select how you want to signup as" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent className="w-full">
+                                                <SelectItem value="OWNER">Vehicle Owner</SelectItem>
+                                                <SelectItem value="USER">Renter</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
                             />
                             <Button
                                 type="submit"

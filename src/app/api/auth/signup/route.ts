@@ -6,10 +6,10 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { username, email, password } = body;
+    const { username, email, password, role } = body;
 
     // Field required validation
-    if (!username || !email || !password) {
+    if (!username || !email || !password || !role) {
       return NextResponse.json({ message: "Missing fields" }, { status: 400 });
     }
 
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
         username,
         email,
         password: hashedPassword,
-        role: "USER", // Explicitly set role; super admin can change the role afterwards
+        role: role, // Explicitly set role; super admin can change the role afterwards
         isVerified: false, // Default until approved by super admin
       },
     });
