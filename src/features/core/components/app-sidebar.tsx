@@ -10,11 +10,11 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-} from "../../core/components/sidebar";
+} from "./sidebar";
 import { NavMain } from "./nav-main";
+import { IHeaderData } from "../../sidebar/types/types";
 import { SidebarHeaderComponent } from "./sidebar-header";
 import { NavUser } from "./nav-user";
-import { IHeaderData } from "../types/types";
 
 
 interface IUserData {

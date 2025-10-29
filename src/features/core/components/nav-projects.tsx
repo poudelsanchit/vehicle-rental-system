@@ -14,13 +14,13 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "../../core/components/sidebar"
+} from "./sidebar"
 import {
   DropdownMenu, DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../../core/components/dropdown-menu"
+} from "./dropdown-menu"
 
 export function NavProjects({
   projects,

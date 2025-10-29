@@ -3,7 +3,7 @@ import * as React from "react";
 import {
   SidebarMenu, SidebarMenuButton,
   SidebarMenuItem,
-} from "../../core/components/sidebar";
+} from "./sidebar";
 export function SidebarHeaderComponent({
   team,
 }: {

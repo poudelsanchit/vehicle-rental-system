@@ -6,15 +6,15 @@ import {
   SidebarMenu, SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "../../core/components/sidebar";
+} from "./sidebar";
 import {
   DropdownMenu, DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../../core/components/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "../../core/components/avatar";
+} from "./dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 
 export function NavUser({
   user,

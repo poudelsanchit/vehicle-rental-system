@@ -8,20 +8,20 @@ import {
     SidebarTrigger,
 } from "@/features/core/components/sidebar";
 import { Separator } from "@/features/core/components/separator";
-import { AppSidebar } from "../../core/components/app-sidebar";
 import { useUserData } from "@/features/sidebar/hooks/useUserData";
-import { headerData, navMainData } from "@/features/sidebar/constants/constants";
+import { AppSidebar } from "@/features/core/components/app-sidebar";
+import { OwnerHeaderData, OwnerNavMainData } from "../constants/constants";
 
-export function AdminSidebarLayout({ children }: { children: React.ReactNode }) {
+export function OwnerSidebarLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const userData = useUserData();
 
     return (
         <SidebarProvider>
             <AppSidebar
-                headerData={headerData}
+                headerData={OwnerHeaderData}
                 userData={userData}
-                navMainData={navMainData}
+                navMainData={OwnerNavMainData}
             />
             <SidebarInset>
                 <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
@@ -40,8 +40,8 @@ export function AdminSidebarLayout({ children }: { children: React.ReactNode }) 
                                     <BreadcrumbSeparator className="hidden md:block" />
                                     <BreadcrumbItem>
                                         <BreadcrumbLink >
-                                            {pathname === "/admin"
-                                                ? "users"
+                                            {pathname === "/owner"
+                                                ? "dashboard"
                                                 : pathname.split("/")[2]}
                                         </BreadcrumbLink>
                                     </BreadcrumbItem>
