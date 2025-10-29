@@ -87,7 +87,7 @@ export default function KYCTable({ records, onStatusUpdate }: KYCTableProps) {
 
     if (records.length === 0) {
         return (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 ">
                 No KYC submissions found
             </div>
         );
@@ -99,40 +99,40 @@ export default function KYCTable({ records, onStatusUpdate }: KYCTableProps) {
                 <table className="min-w-full divide-y ">
                     <thead>
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider">
                                 Full Name
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider">
                                 Email
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider">
                                 Type
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider">
                                 Phone
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider">
                                 Nationality
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider">
                                 Identity
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider">
                                 Identity Images
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider">
                                 License
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider">
                                 License Images
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider">
                                 Status
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider">
                                 Submitted
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider">
                                 Actions
                             </th>
                         </tr>
@@ -143,7 +143,7 @@ export default function KYCTable({ records, onStatusUpdate }: KYCTableProps) {
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <div className="font-medium ">{record.fullName}</div>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm ">
                                     {record.email}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
@@ -151,16 +151,16 @@ export default function KYCTable({ records, onStatusUpdate }: KYCTableProps) {
                                         {record.userRole}
                                     </span>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm ">
                                     {record.phoneNumber}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm ">
                                     {record.nationality}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <div className="text-sm">
                                         <div className="font-medium ">{record.identityType}</div>
-                                        <div className="text-gray-500">{record.identityNumber}</div>
+                                        <div className="">{record.identityNumber}</div>
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
@@ -195,7 +195,7 @@ export default function KYCTable({ records, onStatusUpdate }: KYCTableProps) {
                                     {record.hasLicense ? (
                                         <div className="text-sm">
                                             <CheckCircle className="w-4 h-4 text-green-500 inline mr-1" />
-                                            <span className="text-xs text-gray-500">
+                                            <span className="text-xs ">
                                                 {record.licenseExpiryDate &&
                                                     `Exp: ${new Date(record.licenseExpiryDate).toLocaleDateString()}`
                                                 }
@@ -240,7 +240,7 @@ export default function KYCTable({ records, onStatusUpdate }: KYCTableProps) {
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     {getStatusBadge(record.status)}
                                     {record.verifiedAt && (
-                                        <div className="text-xs text-gray-500 mt-1">
+                                        <div className="text-xs  mt-1">
                                             {new Date(record.verifiedAt).toLocaleDateString()}
                                         </div>
                                     )}
@@ -250,7 +250,7 @@ export default function KYCTable({ records, onStatusUpdate }: KYCTableProps) {
                                         </div>
                                     )}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm ">
                                     {new Date(record.createdAt).toLocaleDateString()}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">

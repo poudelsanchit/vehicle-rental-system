@@ -17,6 +17,7 @@
 /.next/
 /out/
 /public/kyc-documents
+/public/vehicles
 
 # production
 /build

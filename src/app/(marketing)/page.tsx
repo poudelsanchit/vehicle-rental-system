@@ -52,14 +52,14 @@ async function getTestimonials(): Promise<ITestimonial[]> {
 
 export default async function Home() {
     const testimonials = await getTestimonials();
-    const featuredVehicles = await getFeaturedVehicles()
+    // const featuredVehicles = await getFeaturedVehicles()
 
     return (
         <>
             <div className={poppins.className}>
                 <HeroSection />
                 <HowItWorks />
-                <FeaturedVehicles showTopBorder featuredVehiclesData={featuredVehicles} />
+                {/* <FeaturedVehicles showTopBorder featuredVehiclesData={featuredVehicles} /> */}
                 <Testimonials testimonials={testimonials} />
 
             </div>

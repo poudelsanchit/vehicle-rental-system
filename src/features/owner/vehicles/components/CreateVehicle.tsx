@@ -127,7 +127,7 @@ export type VehicleFormValues = z.infer<typeof vehicleFormSchema>;
 
 // API service function
 async function createVehicleAPI(formData: FormData) {
-    const response = await fetch('/api/vehicles', {
+    const response = await fetch('/api/v1/owner/vehicle', {
         method: 'POST',
         body: formData,
     });
@@ -139,9 +139,12 @@ async function createVehicleAPI(formData: FormData) {
 
     return response.json();
 }
+interface ICreateVehicleProps {
+    fetchVehiclesData: () => void
+}
 
 
-export default function CreateVehicle() {
+export default function CreateVehicle({ fetchVehiclesData }: ICreateVehicleProps) {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -192,6 +195,7 @@ export default function CreateVehicle() {
             const result = await createVehicleAPI(formData);
 
             if (result.success) {
+                fetchVehiclesData()
                 toast.success("Vehicle Created Successfully! 🎉", {
                     description: result.message || `Vehicle "${values.title}" has been added.`,
                     duration: 5000,
@@ -498,8 +502,8 @@ export default function CreateVehicle() {
                         <div className="space-y-4 border-b pb-6">
                             <h3 className="text-sm font-semibold">Vehicle Photos</h3>
                             <ImageUpload
-                                label="Vehicle Back Photo"
-                                description="Upload clear photo of the vehicle's back"
+                                label="Vehicle Front Photo"
+                                description="Upload clear photo of the vehicle's front"
                                 required
                                 value={form.watch('vehicleFrontPhoto')}
                                 onChange={(file) => form.setValue('vehicleFrontPhoto', file as File, { shouldValidate: true })}

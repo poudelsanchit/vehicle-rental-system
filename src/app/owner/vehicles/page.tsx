@@ -1,10 +1,32 @@
+"use client"
 import { Badge } from "@/features/core/components/badge";
 import { Card, CardContent } from "@/features/core/components/card";
 import CreateVehicle from "@/features/owner/vehicles/components/CreateVehicle";
 import VehiclesTable from "@/features/owner/vehicles/components/VehiclesTable";
 import { vehicleMockData } from "@/features/owner/vehicles/mockdata/mockdata";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function VehcilesPage() {
+    const [vehiclesData, setVehiclesData] = useState([])
+    const fetchVehiclesData = async () => {
+        try {
+            const response = await axios.get("/api/v1/owner/vehicle");
+            const data = response.data
+            if (response.status === 200) {
+                setVehiclesData(data.data)
+            }
+
+        } catch (error) {
+            toast("Error fetching vehiclesData")
+        }
+    }
+    useEffect(() => {
+        fetchVehiclesData();
+    }, []);
+
+
     return <div className="min-h-screen py-2">
         <div className=" mb-4">
             {/* Header */}
@@ -21,15 +43,15 @@ export default function VehcilesPage() {
         <Card>
             <CardContent >
                 <div className="mb-4 flex items-center  gap-4">
-                    <CreateVehicle />
+                    <CreateVehicle fetchVehiclesData={fetchVehiclesData} />
 
                     <Badge variant="outline" className="text-sm">
                         {/* Total Testimonials: {testimonials?.length} */}
-                        Total Vehicles: 10
+                        Total Vehicles: {vehiclesData.length}
 
                     </Badge>
                 </div>
-                <VehiclesTable vehicles={vehicleMockData} />
+                <VehiclesTable vehicles={vehiclesData} />
             </CardContent>
         </Card>
     </div>
