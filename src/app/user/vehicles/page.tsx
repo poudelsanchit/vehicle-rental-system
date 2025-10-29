@@ -102,9 +102,14 @@ export default function VehiclesPage() {
         <div className="container mx-auto px-4 py-8">
             <div className="mb-8">
                 <h1 className="text-3xl font-bold mb-2">Available Vehicles</h1>
-                <p className="text-gray-600">
-                    Browse through our collection of {vehicles.length} available vehicles
-                </p>
+                <div className="flex items-center gap-4 mb-2">
+                    <p className="text-gray-600">
+                        Browse through our collection of {vehicles.length} available vehicles
+                    </p>
+                    <Badge variant="outline" className="bg-green-50 text-green-700">
+                        ✓ Currently Available
+                    </Badge>
+                </div>
             </div>
 
             {vehicles.length === 0 ? (
@@ -141,6 +146,9 @@ export default function VehiclesPage() {
                                     <Badge variant="outline">{vehicle.type}</Badge>
                                     <Badge variant="outline">{vehicle.transmission}</Badge>
                                     <Badge variant="outline">{vehicle.fuelType}</Badge>
+                                    <Badge variant="default" className="bg-green-100 text-green-800">
+                                        Available Now
+                                    </Badge>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-2 text-sm">
