@@ -15,7 +15,6 @@ import { Button } from "@/features/core/components/button";
 import { Input } from "@/features/core/components/input";
 import { Label } from "@/features/core/components/label";
 import { Textarea } from "@/features/core/components/textarea";
-import { Badge } from "@/features/core/components/badge";
 import { toast } from "sonner";
 
 interface Vehicle {
@@ -36,7 +35,6 @@ export function BookingDialog({ vehicle, children }: BookingDialogProps) {
   const { data: session } = useSession();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [paymentStep, setPaymentStep] = useState<'booking' | 'payment' | 'processing'>('booking');
   const [formData, setFormData] = useState({
     startDate: "",
     endDate: "",
@@ -68,34 +66,11 @@ export function BookingDialog({ vehicle, children }: BookingDialogProps) {
       return;
     }
 
-    setPaymentStep('payment');
-  };
-
-  const handlePayment = async () => {
-    // Prevent multiple clicks
-    if (loading) return;
-
     setLoading(true);
-    setPaymentStep('processing');
 
     try {
-      if (!session?.user?.email) {
-        throw new Error("User session not found");
-      }
-
-      // Get user details
-      const userDetailsResponse = await fetch(`/api/v1/user/profile`);
-      if (!userDetailsResponse.ok) {
-        throw new Error("Failed to fetch user profile");
-      }
-      const userData = await userDetailsResponse.json();
-
-      // Generate unique booking identifier
-      const uniqueBookingId = `booking_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
-      // Prepare booking data
+      // Create booking request directly without payment
       const bookingData = {
-        userId: userData.id,
         vehicleId: vehicle.id,
         startDate: formData.startDate,
         endDate: formData.endDate,
@@ -106,55 +81,43 @@ export function BookingDialog({ vehicle, children }: BookingDialogProps) {
         totalDays,
       };
 
-      // Store booking data in localStorage before payment
-      localStorage.setItem('pendingBooking', JSON.stringify(bookingData));
-
-      // Initialize Khalti payment with unique identifier
-      const paymentResponse = await fetch("/api/khalti/verify", {
+      const response = await fetch("/api/v1/bookings", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          amount: totalAmount,
-          patientId: uniqueBookingId,
-          products: [
-            {
-              product: `${vehicle.brand} ${vehicle.model} - ${totalDays} days`,
-              amount: totalAmount,
-              quantity: 1
-            },
-          ],
-          payment_method: "khalti",
-        }),
+        body: JSON.stringify(bookingData),
       });
 
-      if (!paymentResponse.ok) {
-        const errorData = await paymentResponse.json();
-        throw new Error(errorData.message || "Failed to initialize payment");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create booking");
       }
 
-      const paymentData = await paymentResponse.json();
-
-      // Small delay to ensure state is updated before redirect
-      setTimeout(() => {
-        window.location.href = paymentData.data.payment_url;
-      }, 100);
+      const result = await response.json();
+      
+      toast.success("Booking request submitted successfully! The owner will review and respond to your request.");
+      
+      // Reset form and close dialog
+      setFormData({
+        startDate: "",
+        endDate: "",
+        contactPhone: "",
+        pickupTime: "",
+        specialRequests: "",
+      });
+      setOpen(false);
 
     } catch (error) {
-      console.error("Payment initialization error:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to initialize payment");
-      setPaymentStep('booking');
-      // Clear any stored booking data on error
-      localStorage.removeItem('pendingBooking');
+      console.error("Booking creation error:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to create booking");
     } finally {
       setLoading(false);
     }
   };
 
   const handleCancel = () => {
-    setPaymentStep('booking');
-    setLoading(false); // Reset loading state
+    setLoading(false);
     setFormData({
       startDate: "",
       endDate: "",
@@ -162,8 +125,6 @@ export function BookingDialog({ vehicle, children }: BookingDialogProps) {
       pickupTime: "",
       specialRequests: "",
     });
-    // Clear any pending booking data
-    localStorage.removeItem('pendingBooking');
     setOpen(false);
   };
 
@@ -184,19 +145,13 @@ export function BookingDialog({ vehicle, children }: BookingDialogProps) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>
-            {paymentStep === 'booking' && `Book ${vehicle.brand} ${vehicle.model}`}
-            {paymentStep === 'payment' && 'Confirm Payment'}
-            {paymentStep === 'processing' && 'Processing Payment...'}
-          </DialogTitle>
+          <DialogTitle>Book {vehicle.brand} {vehicle.model}</DialogTitle>
           <DialogDescription>
-            {paymentStep === 'booking' && 'Fill in the details below to book this vehicle'}
-            {paymentStep === 'payment' && 'Review your booking details and proceed to payment'}
-            {paymentStep === 'processing' && 'Please wait while we process your payment...'}
+            Fill in the details below to request a booking. The owner will review and respond to your request.
           </DialogDescription>
         </DialogHeader>
 
-        {paymentStep === 'booking' && (
+        <div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -269,9 +224,12 @@ export function BookingDialog({ vehicle, children }: BookingDialogProps) {
                   <span>Rs. {vehicle.pricePerDay.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between font-semibold text-lg border-t pt-2">
-                  <span>Total Amount:</span>
+                  <span>Estimated Total:</span>
                   <span className="text-green-600">Rs. {totalAmount.toLocaleString()}</span>
                 </div>
+                <p className="text-xs text-gray-600 mt-2">
+                  * Payment will be arranged directly with the owner after booking confirmation
+                </p>
               </div>
             )}
 
@@ -289,96 +247,11 @@ export function BookingDialog({ vehicle, children }: BookingDialogProps) {
                 disabled={loading || totalDays <= 0}
                 className="flex-1"
               >
-                Proceed to Payment
+                {loading ? "Submitting..." : "Submit Booking Request"}
               </Button>
             </div>
           </form>
-        )}
-
-        {paymentStep === 'payment' && (
-          <div className="space-y-4">
-            {/* Booking Summary */}
-            <div className="bg-gray-50 p-4 rounded-lg space-y-3">
-              <h3 className="font-semibold text-lg">Booking Summary</h3>
-
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div><span className="font-medium">Vehicle:</span></div>
-                <div>{vehicle.brand} {vehicle.model}</div>
-
-                <div><span className="font-medium">Dates:</span></div>
-                <div>{format(new Date(formData.startDate), "MMM dd")} - {format(new Date(formData.endDate), "MMM dd, yyyy")}</div>
-
-                <div><span className="font-medium">Duration:</span></div>
-                <div>{totalDays} day{totalDays > 1 ? 's' : ''}</div>
-
-                <div><span className="font-medium">Pickup Location:</span></div>
-                <div>{vehicle.pickupLocation}</div>
-
-                <div><span className="font-medium">Pickup Time:</span></div>
-                <div>{formData.pickupTime}</div>
-
-                <div><span className="font-medium">Contact:</span></div>
-                <div>{formData.contactPhone}</div>
-              </div>
-
-              {formData.specialRequests && (
-                <div>
-                  <span className="font-medium text-sm">Special Requests:</span>
-                  <p className="text-sm mt-1">{formData.specialRequests}</p>
-                </div>
-              )}
-
-              <div className="border-t pt-3 mt-3">
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">Rate per day:</span>
-                  <span>Rs. {vehicle.pricePerDay.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between items-center font-semibold text-lg">
-                  <span>Total Amount:</span>
-                  <span className="text-green-600">Rs. {totalAmount.toLocaleString()}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <Badge variant="outline" className="bg-blue-100 text-blue-800">
-                  Khalti Payment
-                </Badge>
-              </div>
-              <p className="text-sm text-blue-700">
-                You will be redirected to Khalti to complete your payment securely.
-                Your booking will be confirmed only after successful payment.
-              </p>
-            </div>
-
-            <div className="flex gap-3 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setPaymentStep('booking')}
-                className="flex-1"
-                disabled={loading}
-              >
-                Back
-              </Button>
-              <Button
-                onClick={handlePayment}
-                disabled={loading}
-                className="flex-1 bg-purple-600 hover:bg-purple-700"
-              >
-                {loading ? "Processing..." : "Pay with Khalti"}
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {paymentStep === 'processing' && (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Redirecting to Khalti payment gateway...</p>
-          </div>
-        )}
+        </div>
       </DialogContent>
     </Dialog>
   );

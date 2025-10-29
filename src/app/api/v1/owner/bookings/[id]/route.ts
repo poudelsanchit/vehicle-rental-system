@@ -40,9 +40,9 @@ export async function PATCH(
     const { status } = await request.json();
 
     // Validate status
-    if (!["CONFIRMED", "CANCELLED"].includes(status)) {
+    if (!["CONFIRMED", "CANCELLED", "PENDING"].includes(status)) {
       return NextResponse.json(
-        { error: "Invalid status. Must be CONFIRMED or CANCELLED" },
+        { error: "Invalid status. Must be CONFIRMED, CANCELLED, or PENDING" },
         { status: 400 }
       );
     }
@@ -67,10 +67,10 @@ export async function PATCH(
       );
     }
 
-    // Only allow status change for pending bookings
-    if (booking.status !== "PENDING") {
+    // Allow status changes for pending and confirmed bookings
+    if (booking.status === "CANCELLED" || booking.status === "COMPLETED") {
       return NextResponse.json(
-        { error: "Can only modify pending bookings" },
+        { error: "Cannot modify cancelled or completed bookings" },
         { status: 400 }
       );
     }

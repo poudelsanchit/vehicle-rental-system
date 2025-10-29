@@ -143,15 +143,15 @@ export default function VehicleVerification() {
             <CardContent>
               <div className="space-y-4">
                 {vehicle.verificationStatus === "PENDING" && (
-                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
-                    <p className="text-sm text-blue-800">
+                  <div className="p-3 bg-background border border-border rounded-md">
+                    <p className="text-sm ">
                       Your vehicle is under review by our admin team. You will be notified once the review is complete.
                     </p>
                   </div>
                 )}
 
                 {vehicle.verificationStatus === "REJECTED" && vehicle.rejectionReason && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                  <div className="p-3 bg-background border border-border  rounded-md">
                     <p className="text-sm text-red-800">
                       <strong>Rejection Reason:</strong> {vehicle.rejectionReason}
                     </p>
@@ -164,8 +164,8 @@ export default function VehicleVerification() {
                 {vehicle.verificationStatus === "ACCEPTED_FOR_PAYMENT" &&
                   vehicle.paymentStatus === "UNPAID" && (
                     <div className="space-y-3">
-                      <div className="p-3 bg-green-50 border border-green-200 rounded-md">
-                        <p className="text-sm text-green-800">
+                      <div className="p-3 bg-background border border-border  rounded-md">
+                        <p className="text-sm">
                           Great! Your vehicle has been approved for verification.
                           Please complete the payment to finalize the verification process.
                         </p>
