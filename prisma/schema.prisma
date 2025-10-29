@@ -20,6 +20,7 @@ model User {
   // Relations
   kyc      KYC?
   vehicles Vehicle[]
+  bookings Booking[]
 }
 
 model KYC {
@@ -99,8 +100,41 @@ model Vehicle {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Relations
+  bookings Booking[]
+
   @@index([userId])
   @@index([available])
+}
+
+model Booking {
+  id        String @id @default(uuid())
+  userId    String
+  vehicleId String
+  
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  // Booking Details
+  startDate    DateTime
+  endDate      DateTime
+  totalDays    Int
+  totalAmount  Float
+  status       BookingStatus @default(PENDING)
+
+  // Contact Info
+  contactPhone String
+  pickupTime   String
+  
+  // Additional Info
+  specialRequests String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([vehicleId])
+  @@index([status])
 }
 
 enum Role {
@@ -145,4 +179,11 @@ enum FuelType {
   DIESEL
   ELECTRIC
   HYBRID
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
 }

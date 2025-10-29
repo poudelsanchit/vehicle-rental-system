@@ -36,30 +36,46 @@ import {
     TableRow,
 } from "@/features/core/components/table"
 
-// Interface for booking data
+// Interface for booking data from API
 export interface BookingData {
     id: string
-    registrationNumber: string
-    vehicleName: string
-    pricePerDay: number
-    bookingDate: string
-    bookedTillDate: string
-    renterDetails: {
-        id: string
-        name: string
-        email: string
-        phone: string
-    }
-    paymentStatus: 'pending' | 'completed' | 'failed'
+    startDate: string
+    endDate: string
+    totalDays: number
     totalAmount: number
-    bookingStatus: 'active' | 'completed' | 'cancelled'
+    status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED'
+    contactPhone: string
+    pickupTime: string
+    specialRequests?: string
+    createdAt: string
+    user: {
+        id: string
+        username: string
+        email: string
+        kyc?: {
+            phoneNumber: string
+            fullName: string
+        }
+    }
+    vehicle: {
+        id: string
+        title: string
+        brand: string
+        model: string
+        year: number
+        registrationNumber: string
+        pricePerDay: number
+        vehicleFrontPhoto: string
+    }
 }
 
 interface BookingsTableProps {
     bookings: BookingData[]
+    onStatusUpdate?: (bookingId: string, status: string) => void
 }
 
-export const columns: ColumnDef<BookingData>[] = [
+// Create columns function to access onStatusUpdate
+const createColumns = (onStatusUpdate?: (bookingId: string, status: string) => void): ColumnDef<BookingData>[] => [
     {
         id: "select",
         header: ({ table }) => (
@@ -83,7 +99,7 @@ export const columns: ColumnDef<BookingData>[] = [
         enableHiding: false,
     },
     {
-        accessorKey: "registrationNumber",
+        accessorKey: "vehicle.registrationNumber",
         header: ({ column }) => {
             return (
                 <Button
@@ -96,68 +112,74 @@ export const columns: ColumnDef<BookingData>[] = [
             )
         },
         cell: ({ row }) => (
-            <div className="font-medium">{row.getValue("registrationNumber")}</div>
+            <div className="font-medium">{row.original.vehicle.registrationNumber}</div>
         ),
     },
     {
-        accessorKey: "vehicleName",
+        accessorKey: "vehicle.title",
         header: "Vehicle",
         cell: ({ row }) => (
-            <div className="font-medium">{row.getValue("vehicleName")}</div>
+            <div className="font-medium">
+                {row.original.vehicle.brand} {row.original.vehicle.model} ({row.original.vehicle.year})
+            </div>
         ),
     },
     {
-        accessorKey: "renterDetails.name",
+        accessorKey: "user.username",
         header: "Renter Name",
         cell: ({ row }) => {
-            const renterName = row.original.renterDetails.name
-            return <div>{renterName}</div>
+            const fullName = row.original.user.kyc?.fullName || row.original.user.username
+            return <div>{fullName}</div>
         },
     },
     {
-        accessorKey: "renterDetails.phone",
+        accessorKey: "contactPhone",
         header: "Contact",
         cell: ({ row }) => {
-            const phone = row.original.renterDetails.phone
+            const phone = row.original.contactPhone || row.original.user.kyc?.phoneNumber
             return <div className="text-sm">{phone}</div>
         },
     },
     {
-        accessorKey: "bookingDate",
+        accessorKey: "startDate",
         header: ({ column }) => {
             return (
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Booking Date
+                    Start Date
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             )
         },
         cell: ({ row }) => {
-            const date = new Date(row.getValue("bookingDate"))
+            const date = new Date(row.getValue("startDate"))
             return <div>{date.toLocaleDateString()}</div>
         },
     },
     {
-        accessorKey: "bookedTillDate",
-        header: "Release Date",
+        accessorKey: "endDate",
+        header: "End Date",
         cell: ({ row }) => {
-            const date = new Date(row.getValue("bookedTillDate"))
+            const date = new Date(row.getValue("endDate"))
             return <div>{date.toLocaleDateString()}</div>
         },
     },
     {
-        accessorKey: "pricePerDay",
+        accessorKey: "totalDays",
+        header: "Duration",
+        cell: ({ row }) => {
+            const days = row.getValue("totalDays") as number
+            return <div>{days} day{days > 1 ? 's' : ''}</div>
+        },
+    },
+    {
+        accessorKey: "vehicle.pricePerDay",
         header: () => <div className="text-right">Price/Day</div>,
         cell: ({ row }) => {
-            const price = parseFloat(row.getValue("pricePerDay"))
-            const formatted = new Intl.NumberFormat("en-NP", {
-                style: "currency",
-                currency: "NPR",
-            }).format(price)
-            return <div className="text-right font-medium">{formatted}</div>
+            const price = row.original.vehicle.pricePerDay
+            return <div className="text-right font-medium">Rs. {price.toLocaleString()}</div>
         },
     },
     {
@@ -165,51 +187,28 @@ export const columns: ColumnDef<BookingData>[] = [
         header: () => <div className="text-right">Total Amount</div>,
         cell: ({ row }) => {
             const amount = parseFloat(row.getValue("totalAmount"))
-            const formatted = new Intl.NumberFormat("en-NP", {
-                style: "currency",
-                currency: "NPR",
-            }).format(amount)
-            return <div className="text-right font-medium">{formatted}</div>
+            return <div className="text-right font-medium">Rs. {amount.toLocaleString()}</div>
         },
     },
     {
-        accessorKey: "paymentStatus",
-        header: "Payment",
-        cell: ({ row }) => {
-            const status = row.getValue("paymentStatus") as string
-            return (
-                <Badge
-                    variant={
-                        status === "completed"
-                            ? "default"
-                            : status === "pending"
-                                ? "secondary"
-                                : "destructive"
-                    }
-                    className="capitalize"
-                >
-                    {status}
-                </Badge>
-            )
-        },
-    },
-    {
-        accessorKey: "bookingStatus",
+        accessorKey: "status",
         header: "Status",
         cell: ({ row }) => {
-            const status = row.getValue("bookingStatus") as string
+            const status = row.getValue("status") as string
             return (
                 <Badge
                     variant={
-                        status === "active"
+                        status === "CONFIRMED"
                             ? "default"
-                            : status === "completed"
+                            : status === "PENDING"
                                 ? "secondary"
-                                : "outline"
+                                : status === "COMPLETED"
+                                    ? "outline"
+                                    : "destructive"
                     }
                     className="capitalize"
                 >
-                    {status}
+                    {status.toLowerCase()}
                 </Badge>
             )
         },
@@ -219,6 +218,7 @@ export const columns: ColumnDef<BookingData>[] = [
         enableHiding: false,
         cell: ({ row }) => {
             const booking = row.original
+            const isPending = booking.status === "PENDING"
 
             return (
                 <DropdownMenu>
@@ -236,13 +236,26 @@ export const columns: ColumnDef<BookingData>[] = [
                             Copy booking ID
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
+                        {isPending && onStatusUpdate && (
+                            <>
+                                <DropdownMenuItem
+                                    onClick={() => onStatusUpdate(booking.id, "CONFIRMED")}
+                                    className="text-green-600"
+                                >
+                                    Accept Booking
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => onStatusUpdate(booking.id, "CANCELLED")}
+                                    className="text-red-600"
+                                >
+                                    Reject Booking
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                            </>
+                        )}
                         <DropdownMenuItem>View renter details</DropdownMenuItem>
                         <DropdownMenuItem>View booking details</DropdownMenuItem>
                         <DropdownMenuItem>Contact renter</DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-red-600">
-                            Cancel booking
-                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             )
@@ -250,7 +263,7 @@ export const columns: ColumnDef<BookingData>[] = [
     },
 ]
 
-export default function BookingsTable({ bookings }: BookingsTableProps) {
+export default function BookingsTable({ bookings, onStatusUpdate }: BookingsTableProps) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
         []
@@ -258,6 +271,8 @@ export default function BookingsTable({ bookings }: BookingsTableProps) {
     const [columnVisibility, setColumnVisibility] =
         React.useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = React.useState({})
+
+    const columns = React.useMemo(() => createColumns(onStatusUpdate), [onStatusUpdate])
 
     const table = useReactTable({
         data: bookings,
@@ -283,17 +298,17 @@ export default function BookingsTable({ bookings }: BookingsTableProps) {
             <div className="flex items-center py-4 gap-2">
                 <Input
                     placeholder="Filter by registration number..."
-                    value={(table.getColumn("registrationNumber")?.getFilterValue() as string) ?? ""}
+                    value={(table.getColumn("vehicle.registrationNumber")?.getFilterValue() as string) ?? ""}
                     onChange={(event) =>
-                        table.getColumn("registrationNumber")?.setFilterValue(event.target.value)
+                        table.getColumn("vehicle.registrationNumber")?.setFilterValue(event.target.value)
                     }
                     className="max-w-sm"
                 />
                 <Input
                     placeholder="Filter by renter name..."
-                    value={(table.getColumn("renterDetails.name")?.getFilterValue() as string) ?? ""}
+                    value={(table.getColumn("user.username")?.getFilterValue() as string) ?? ""}
                     onChange={(event) =>
-                        table.getColumn("renterDetails.name")?.setFilterValue(event.target.value)
+                        table.getColumn("user.username")?.setFilterValue(event.target.value)
                     }
                     className="max-w-sm"
                 />
