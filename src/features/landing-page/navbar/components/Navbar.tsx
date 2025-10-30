@@ -6,6 +6,7 @@ import { Button } from "@/features/core/components/button";
 import { cn } from "@/features/core/lib/utils";
 import { Menu, X } from "lucide-react";
 import Logo from "@/features/core/components/Logo";
+import Image from "next/image";
 
 const menuItems = [
     { name: "Home", href: "/" },
@@ -33,7 +34,8 @@ export const Navbar = () => {
                                 href="/"
                                 className="flex items-center space-x-2 text-xl text-black dark:text-white"
                             >
-                                <Logo />
+                                <Image src={'/logo.jpg'} width={500} height={500} alt="logo" className="rounded-full h-12 w-12 " />
+
                             </Link>
 
                             {/* Mobile Menu Toggle */}

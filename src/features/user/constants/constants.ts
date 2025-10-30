@@ -16,7 +16,7 @@ export const UserNavMainData = {
   items: [
     {
       title: "Dashboard",
-      url: "/user",
+      url: "/user/dashboard",
       icon: LayoutDashboard,
     },
     {

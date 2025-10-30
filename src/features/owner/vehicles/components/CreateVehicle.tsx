@@ -32,6 +32,9 @@ export const vehicleFormSchema = z.object({
     type: z.enum(["CAR", "BIKE", "SUV", "VAN", "TRUCK"], {
         errorMap: () => ({ message: "Please select a vehicle type" })
     }),
+    category: z.enum(["TWO_WHEELER", "FOUR_WHEELER"], {
+        errorMap: () => ({ message: "Please select a vehicle category" })
+    }),
     transmission: z.enum(["MANUAL", "AUTOMATIC"], {
         errorMap: () => ({ message: "Please select transmission type" })
     }),
@@ -175,6 +178,7 @@ export default function CreateVehicle({ fetchVehiclesData }: ICreateVehicleProps
             formData.append("model", values.model);
             formData.append("year", values.year.toString());
             formData.append("type", values.type);
+            formData.append("category", values.category);
             formData.append("transmission", values.transmission);
             formData.append("fuelType", values.fuelType);
             formData.append("color", values.color);
@@ -337,7 +341,7 @@ export default function CreateVehicle({ fetchVehiclesData }: ICreateVehicleProps
                                 />
                             </div>
 
-                            <div className="grid grid-cols-3 gap-4">
+                            <div className="grid grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
                                     name="type"
@@ -362,6 +366,31 @@ export default function CreateVehicle({ fetchVehiclesData }: ICreateVehicleProps
                                         </FormItem>
                                     )}
                                 />
+
+                                <FormField
+                                    control={form.control}
+                                    name="category"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-sm">Category <span className="text-red-500">*</span></FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
+                                                <FormControl>
+                                                    <SelectTrigger className="w-full">
+                                                        <SelectValue placeholder="Select category" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="TWO_WHEELER">Two Wheeler</SelectItem>
+                                                    <SelectItem value="FOUR_WHEELER">Four Wheeler</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
 
                                 <FormField
                                     control={form.control}

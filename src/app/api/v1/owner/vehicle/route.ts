@@ -21,7 +21,6 @@ const VEHICLE_UPLOAD_CONFIG = {
   },
 };
 
-
 export async function GET(req: NextRequest) {
   try {
     // Parse query parameters
@@ -83,7 +82,6 @@ export async function GET(req: NextRequest) {
   }
 }
 
-
 export async function POST(req: NextRequest) {
   try {
     // 1. Authenticate user
@@ -123,6 +121,7 @@ export async function POST(req: NextRequest) {
     const model = formData.get("model") as string;
     const year = formData.get("year") as string;
     const type = formData.get("type") as string;
+    const category = formData.get("category") as string;
     const transmission = formData.get("transmission") as string;
     const fuelType = formData.get("fuelType") as string;
     const color = formData.get("color") as string;
@@ -139,6 +138,7 @@ export async function POST(req: NextRequest) {
       !model ||
       !year ||
       !type ||
+      !category ||
       !transmission ||
       !fuelType ||
       !color ||
@@ -158,6 +158,13 @@ export async function POST(req: NextRequest) {
     if (!["CAR", "BIKE", "SUV", "VAN", "TRUCK"].includes(type)) {
       return NextResponse.json(
         { error: "Invalid vehicle type" },
+        { status: 400 }
+      );
+    }
+
+    if (!["TWO_WHEELER", "FOUR_WHEELER"].includes(category)) {
+      return NextResponse.json(
+        { error: "Invalid vehicle category" },
         { status: 400 }
       );
     }
@@ -363,6 +370,7 @@ export async function POST(req: NextRequest) {
         model,
         year: parseInt(year),
         type: type as "CAR" | "BIKE" | "SUV" | "VAN" | "TRUCK",
+        category: category as "TWO_WHEELER" | "FOUR_WHEELER",
         transmission: transmission as "MANUAL" | "AUTOMATIC",
         fuelType: fuelType as "PETROL" | "DIESEL" | "ELECTRIC" | "HYBRID",
         color,

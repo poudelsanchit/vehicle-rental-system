@@ -11,8 +11,11 @@ import {
 } from "@/features/core/components/card";
 import { Badge } from "@/features/core/components/badge";
 import { Button } from "@/features/core/components/button";
+import { Input } from "@/features/core/components/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/features/core/components/select";
 import { Skeleton } from "@/features/core/components/skeleton";
 import { BookingDialog } from "@/features/core/components/booking-dialog";
+import { Search, Filter } from "lucide-react";
 
 interface Vehicle {
     id: string;
@@ -21,6 +24,7 @@ interface Vehicle {
     model: string;
     year: number;
     type: string;
+    category: string;
     transmission: string;
     fuelType: string;
     color: string;
@@ -39,24 +43,66 @@ export default function VehiclesPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchVehicles = async () => {
-            try {
-                const response = await fetch("/api/v1/vehicles");
-                if (!response.ok) {
-                    throw new Error("Failed to fetch vehicles");
-                }
-                const data = await response.json();
-                setVehicles(data);
-            } catch (err) {
-                setError(err instanceof Error ? err.message : "An error occurred");
-            } finally {
-                setLoading(false);
-            }
-        };
+    // Filter states
+    const [search, setSearch] = useState("");
+    const [type, setType] = useState("ALL_TYPES");
+    const [category, setCategory] = useState("ALL_CATEGORIES");
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+    const [minPrice, setMinPrice] = useState("");
+    const [maxPrice, setMaxPrice] = useState("");
+    const [location, setLocation] = useState("");
 
-        fetchVehicles();
+    const fetchVehicles = async (useFilters = false) => {
+        try {
+            setLoading(true);
+            const params = new URLSearchParams();
+
+            if (useFilters) {
+                if (search) params.append("search", search);
+                if (type && type !== "ALL_TYPES") params.append("type", type);
+                if (category && category !== "ALL_CATEGORIES") params.append("category", category);
+                if (startDate) params.append("startDate", startDate);
+                if (endDate) params.append("endDate", endDate);
+                if (minPrice) params.append("minPrice", minPrice);
+                if (maxPrice) params.append("maxPrice", maxPrice);
+                if (location) params.append("location", location);
+            }
+
+            const response = await fetch(`/api/v1/vehicles?${params.toString()}`);
+            if (!response.ok) {
+                throw new Error("Failed to fetch vehicles");
+            }
+            const data = await response.json();
+            setVehicles(data);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "An error occurred");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Initial load without filters
+    useEffect(() => {
+        fetchVehicles(false);
     }, []);
+
+    const handleSearch = () => {
+        fetchVehicles(true);
+    };
+
+    const clearFilters = () => {
+        setSearch("");
+        setType("ALL_TYPES");
+        setCategory("ALL_CATEGORIES");
+        setStartDate("");
+        setEndDate("");
+        setMinPrice("");
+        setMaxPrice("");
+        setLocation("");
+        // Automatically fetch vehicles after clearing filters
+        setTimeout(() => fetchVehicles(false), 100);
+    };
 
     if (loading) {
         return (
@@ -101,14 +147,123 @@ export default function VehiclesPage() {
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2">Available Vehicles</h1>
-                <div className="flex items-center gap-4 mb-2">
+                <h1 className="text-3xl font-bold mb-4">Available Vehicles</h1>
+
+                {/* Search and Filters */}
+                <div className=" p-6 rounded-lg shadow-sm border mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                        {/* Search */}
+                        <div className="relative">
+                            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                            <Input
+                                placeholder="Search vehicles..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                className="pl-10"
+                            />
+                        </div>
+
+                        {/* Location */}
+                        <Input
+                            placeholder="Location..."
+                            value={location}
+                            onChange={(e) => setLocation(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                        />
+
+                        {/* Date Range */}
+                        <div className="flex gap-2">
+                            <Input
+                                type="date"
+                                placeholder="Start Date"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                                min={new Date().toISOString().split('T')[0]}
+                            />
+                            <Input
+                                type="date"
+                                placeholder="End Date"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                                min={startDate || new Date().toISOString().split('T')[0]}
+                            />
+                        </div>
+
+                        {/* Price Range */}
+                        <div className="flex gap-2">
+                            <Input
+                                type="number"
+                                placeholder="Min Price"
+                                value={minPrice}
+                                onChange={(e) => setMinPrice(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            />
+                            <Input
+                                type="number"
+                                placeholder="Max Price"
+                                value={maxPrice}
+                                onChange={(e) => setMaxPrice(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                        {/* Vehicle Type */}
+                        <Select value={type} onValueChange={setType}>
+                            <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Vehicle Type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="ALL_TYPES">All Types</SelectItem>
+                                <SelectItem value="CAR">Car</SelectItem>
+                                <SelectItem value="BIKE">Bike</SelectItem>
+                                <SelectItem value="SUV">SUV</SelectItem>
+                                <SelectItem value="VAN">Van</SelectItem>
+                                <SelectItem value="TRUCK">Truck</SelectItem>
+                            </SelectContent>
+                        </Select>
+
+                        {/* Vehicle Category */}
+                        <Select value={category} onValueChange={setCategory}>
+                            <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Vehicle Category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="ALL_CATEGORIES">All Categories</SelectItem>
+                                <SelectItem value="TWO_WHEELER">Two Wheeler</SelectItem>
+                                <SelectItem value="FOUR_WHEELER">Four Wheeler</SelectItem>
+                            </SelectContent>
+                        </Select>
+
+                        {/* Search Button */}
+                        <Button onClick={handleSearch} disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white">
+                            <Search className="h-4 w-4 mr-2" />
+                            {loading ? "Searching..." : "Search Vehicles"}
+                        </Button>
+
+                        {/* Clear Filters */}
+                        <Button variant="outline" onClick={clearFilters} disabled={loading}>
+                            <Filter className="h-4 w-4 mr-2" />
+                            Clear Filters
+                        </Button>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-4 mb-4">
                     <p className="text-gray-600">
-                        Browse through our collection of {vehicles.length} available vehicles
+                        {loading ? "Loading..." : `Found ${vehicles.length} available vehicles`}
                     </p>
                     <Badge variant="outline" className="bg-green-50 text-green-700">
                         ✓ Currently Available
                     </Badge>
+                    {(search || type !== "ALL_TYPES" || category !== "ALL_CATEGORIES" || startDate || endDate || minPrice || maxPrice || location) && (
+                        <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                            <Filter className="h-3 w-3 mr-1" />
+                            Filters Applied
+                        </Badge>
+                    )}
                 </div>
             </div>
 
@@ -144,6 +299,7 @@ export default function VehiclesPage() {
                             <CardContent className="space-y-3">
                                 <div className="flex flex-wrap gap-2">
                                     <Badge variant="outline">{vehicle.type}</Badge>
+                                    <Badge variant="outline">{vehicle.category.replace('_', ' ')}</Badge>
                                     <Badge variant="outline">{vehicle.transmission}</Badge>
                                     <Badge variant="outline">{vehicle.fuelType}</Badge>
                                     <Badge variant="default" className="bg-green-100 text-green-800">

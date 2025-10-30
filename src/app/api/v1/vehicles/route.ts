@@ -1,16 +1,61 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/features/core/lib/prisma";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const search = searchParams.get("search") || "";
+    const type = searchParams.get("type") || "";
+    const category = searchParams.get("category") || "";
+    const startDate = searchParams.get("startDate") || "";
+    const endDate = searchParams.get("endDate") || "";
+    const minPrice = searchParams.get("minPrice") || "";
+    const maxPrice = searchParams.get("maxPrice") || "";
+    const location = searchParams.get("location") || "";
+
     const currentDate = new Date();
     
-    // First, get all vehicles that are approved and available
+    // Build where clause for filtering
+    const whereClause: any = {
+      available: true,
+      verificationStatus: "APPROVED", // Only show approved vehicles
+    };
+
+    // Add search filter
+    if (search) {
+      whereClause.OR = [
+        { title: { contains: search, mode: "insensitive" } },
+        { brand: { contains: search, mode: "insensitive" } },
+        { model: { contains: search, mode: "insensitive" } },
+        { pickupLocation: { contains: search, mode: "insensitive" } },
+      ];
+    }
+
+    // Add type filter
+    if (type) {
+      whereClause.type = type;
+    }
+
+    // Add category filter
+    if (category) {
+      whereClause.category = category;
+    }
+
+    // Add price range filter
+    if (minPrice || maxPrice) {
+      whereClause.pricePerDay = {};
+      if (minPrice) whereClause.pricePerDay.gte = parseFloat(minPrice);
+      if (maxPrice) whereClause.pricePerDay.lte = parseFloat(maxPrice);
+    }
+
+    // Add location filter
+    if (location) {
+      whereClause.pickupLocation = { contains: location, mode: "insensitive" };
+    }
+
+    // Get all vehicles matching the filters
     const allVehicles = await prisma.vehicle.findMany({
-      where: {
-        available: true,
-        verificationStatus: "APPROVED", // Only show approved vehicles
-      },
+      where: whereClause,
       include: {
         user: {
           select: {
@@ -40,13 +85,32 @@ export async function GET() {
       },
     });
 
-    // Filter out vehicles that have active bookings
+    // Filter vehicles based on date availability
     const availableVehicles = allVehicles.filter(vehicle => {
-      // If vehicle has no active bookings, it's available
-      return vehicle.bookings.length === 0;
+      // If no date range specified, just check for active bookings
+      if (!startDate || !endDate) {
+        return vehicle.bookings.length === 0;
+      }
+
+      // Check if vehicle is available for the specified date range
+      const requestStart = new Date(startDate);
+      const requestEnd = new Date(endDate);
+
+      const hasConflict = vehicle.bookings.some(booking => {
+        const bookingStart = new Date(booking.startDate);
+        const bookingEnd = new Date(booking.endDate);
+
+        return (
+          (bookingStart <= requestStart && bookingEnd > requestStart) ||
+          (bookingStart < requestEnd && bookingEnd >= requestEnd) ||
+          (bookingStart >= requestStart && bookingEnd <= requestEnd)
+        );
+      });
+
+      return !hasConflict;
     });
 
-    // Remove the bookings data from the response (we don't need to expose it to frontend)
+    // Remove the bookings data from the response
     const vehiclesResponse = availableVehicles.map(vehicle => {
       const { bookings, ...vehicleData } = vehicle;
       return vehicleData;

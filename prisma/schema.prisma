@@ -75,6 +75,7 @@ model Vehicle {
   model           String
   year            Int
   type            VehicleType
+  category        VehicleCategory
   transmission    TransmissionType
   fuelType        FuelType
   color           String
@@ -116,6 +117,8 @@ model Vehicle {
   @@index([available])
   @@index([verificationStatus])
   @@index([paymentStatus])
+  @@index([category])
+  @@index([type])
 }
 
 model Booking {
@@ -210,4 +213,9 @@ enum PaymentStatus {
   UNPAID
   PAID
   FAILED
+}
+
+enum VehicleCategory {
+  TWO_WHEELER
+  FOUR_WHEELER
 }
