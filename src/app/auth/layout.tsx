@@ -1,3 +1,4 @@
+import Logo from "@/features/core/components/Logo";
 import Link from "next/link";
 
 export default function AuthLayout({
@@ -11,7 +12,7 @@ export default function AuthLayout({
                 href={"/"}
                 className="absolute top-4 left-4 text-xl font-bold cursor-pointer"
             >
-                GO GADI
+                <Logo />
             </Link>
             <main>{children}</main>
         </div>

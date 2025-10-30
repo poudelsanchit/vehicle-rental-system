@@ -36,7 +36,7 @@ export default function PaymentSuccessPage() {
         const pendingBooking = JSON.parse(pendingBookingStr);
 
         // Verify payment with backend
-        const response = await fetch('/api/khalti/verify-payment', {
+        const response = await fetch('/api/khalti/verify', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

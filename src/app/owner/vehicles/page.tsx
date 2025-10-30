@@ -12,10 +12,12 @@ export default function VehcilesPage() {
     const [vehiclesData, setVehiclesData] = useState([])
     const fetchVehiclesData = async () => {
         try {
-            const response = await axios.get("/api/v1/owner/vehicle");
+            const response = await axios.get("/api/v1/owner/vehicles");
             const data = response.data
             if (response.status === 200) {
-                setVehiclesData(data.data)
+                // Only show approved vehicles in the main vehicles page
+                const approvedVehicles = data.filter((vehicle: any) => vehicle.verificationStatus === "APPROVED");
+                setVehiclesData(approvedVehicles)
             }
 
         } catch (error) {

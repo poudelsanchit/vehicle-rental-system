@@ -20,6 +20,11 @@ export const navMainData = {
       icon: Verified,
     },
     {
+      title: "Vehicles Verification",
+      url: "/admin/vehicles",
+      icon: Car,
+    },
+    {
       title: "Settings",
       url: "/admin/settings",
       icon: Settings,

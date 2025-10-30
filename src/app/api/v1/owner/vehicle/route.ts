@@ -370,8 +370,13 @@ export async function POST(req: NextRequest) {
 
         registrationNumber,
         pricePerDay: parseFloat(pricePerDay),
-        available: true,
+        available: false, // Vehicle unavailable until approved
         pickupLocation,
+
+        // Verification fields
+        verificationStatus: "PENDING",
+        paymentStatus: "UNPAID",
+        verificationFee: 500, // Fixed fee
 
         insuranceValidTill: new Date(insuranceValidTill),
         bluebookImage: uploadedUrls.bluebookImage!,
@@ -386,7 +391,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        message: `Vehicle "${title}" has been created successfully and is pending approval.`,
+        message: `Vehicle "${title}" has been created successfully and is pending verification. Please check the verification status page.`,
         data: {
           id: vehicle.id,
           title: vehicle.title,

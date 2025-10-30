@@ -97,6 +97,15 @@ model Vehicle {
   vehicleInteriorPhoto String
   vehicleSidePhoto     String
 
+  // Verification & Payment
+  verificationStatus VehicleVerificationStatus @default(PENDING)
+  rejectionReason    String?
+  verificationFee    Float                     @default(500) // Fixed fee of 500
+  paymentStatus      PaymentStatus             @default(UNPAID)
+  paymentId          String?                   // Khalti payment ID
+  verifiedAt         DateTime?
+  verifiedBy         String?                   // Admin user ID who verified
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -105,6 +114,8 @@ model Vehicle {
 
   @@index([userId])
   @@index([available])
+  @@index([verificationStatus])
+  @@index([paymentStatus])
 }
 
 model Booking {
@@ -186,4 +197,17 @@ enum BookingStatus {
   CONFIRMED
   CANCELLED
   COMPLETED
+}
+
+enum VehicleVerificationStatus {
+  PENDING
+  ACCEPTED_FOR_PAYMENT
+  REJECTED
+  APPROVED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  FAILED
 }

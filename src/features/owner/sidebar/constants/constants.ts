@@ -1,5 +1,5 @@
 // constants.ts
-import { CalendarCheck, Car, LayoutDashboard, Settings } from "lucide-react";
+import { CalendarCheck, Car, LayoutDashboard, Settings, Shield } from "lucide-react";
 
 export const OwnerHeaderData = {
   name: "Go Gadi",
@@ -18,6 +18,11 @@ export const OwnerNavMainData = {
       title: "Vehicles",
       url: "/owner/vehicles",
       icon: Car,
+    },
+    {
+      title: "Vehicle Verification",
+      url: "/owner/vehicles/verification",
+      icon: Shield,
     },
     {
       title: "Bookings",

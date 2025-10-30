@@ -47,17 +47,17 @@ export function BookingDialog({ vehicle, children }: BookingDialogProps) {
 
   const calculateTotal = () => {
     if (!formData.startDate || !formData.endDate) return 0;
-    
+
     const start = new Date(formData.startDate);
     const end = new Date(formData.endDate);
     const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-    
+
     return days > 0 ? days * vehicle.pricePerDay : 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!session?.user) {
       toast.error("Please login to make a booking");
       return;
@@ -74,7 +74,7 @@ export function BookingDialog({ vehicle, children }: BookingDialogProps) {
   const handlePayment = async () => {
     // Prevent multiple clicks
     if (loading) return;
-    
+
     setLoading(true);
     setPaymentStep('processing');
 
@@ -119,10 +119,10 @@ export function BookingDialog({ vehicle, children }: BookingDialogProps) {
           amount: totalAmount,
           patientId: uniqueBookingId,
           products: [
-            { 
-              product: `${vehicle.brand} ${vehicle.model} - ${totalDays} days`, 
-              amount: totalAmount, 
-              quantity: 1 
+            {
+              product: `${vehicle.brand} ${vehicle.model} - ${totalDays} days`,
+              amount: totalAmount,
+              quantity: 1
             },
           ],
           payment_method: "khalti",
@@ -135,7 +135,7 @@ export function BookingDialog({ vehicle, children }: BookingDialogProps) {
       }
 
       const paymentData = await paymentResponse.json();
-      
+
       // Small delay to ensure state is updated before redirect
       setTimeout(() => {
         window.location.href = paymentData.data.payment_url;
@@ -171,7 +171,7 @@ export function BookingDialog({ vehicle, children }: BookingDialogProps) {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const totalDays = formData.startDate && formData.endDate 
+  const totalDays = formData.startDate && formData.endDate
     ? Math.ceil((new Date(formData.endDate).getTime() - new Date(formData.startDate).getTime()) / (1000 * 60 * 60 * 24))
     : 0;
 
@@ -198,82 +198,82 @@ export function BookingDialog({ vehicle, children }: BookingDialogProps) {
 
         {paymentStep === 'booking' && (
           <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="startDate">Start Date</Label>
-              <Input
-                id="startDate"
-                type="date"
-                value={formData.startDate}
-                onChange={(e) => handleInputChange("startDate", e.target.value)}
-                min={format(new Date(), "yyyy-MM-dd")}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="endDate">End Date</Label>
-              <Input
-                id="endDate"
-                type="date"
-                value={formData.endDate}
-                onChange={(e) => handleInputChange("endDate", e.target.value)}
-                min={formData.startDate || format(new Date(), "yyyy-MM-dd")}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="contactPhone">Contact Phone</Label>
-              <Input
-                id="contactPhone"
-                type="tel"
-                placeholder="Your phone number"
-                value={formData.contactPhone}
-                onChange={(e) => handleInputChange("contactPhone", e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="pickupTime">Preferred Pickup Time</Label>
-              <Input
-                id="pickupTime"
-                type="time"
-                value={formData.pickupTime}
-                onChange={(e) => handleInputChange("pickupTime", e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor="specialRequests">Special Requests (Optional)</Label>
-            <Textarea
-              id="specialRequests"
-              placeholder="Any special requirements or notes..."
-              value={formData.specialRequests}
-              onChange={(e) => handleInputChange("specialRequests", e.target.value)}
-              rows={3}
-            />
-          </div>
-
-          {totalDays > 0 && (
-            <div className=" p-4 rounded-lg space-y-2">
-              <div className="flex justify-between">
-                <span>Duration:</span>
-                <span>{totalDays} day{totalDays > 1 ? "s" : ""}</span>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="startDate">Start Date</Label>
+                <Input
+                  id="startDate"
+                  type="date"
+                  value={formData.startDate}
+                  onChange={(e) => handleInputChange("startDate", e.target.value)}
+                  min={format(new Date(), "yyyy-MM-dd")}
+                  required
+                />
               </div>
-              <div className="flex justify-between">
-                <span>Rate per day:</span>
-                <span>Rs. {vehicle.pricePerDay.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between font-semibold text-lg border-t pt-2">
-                <span>Total Amount:</span>
-                <span className="text-green-600">Rs. {totalAmount.toLocaleString()}</span>
+              <div>
+                <Label htmlFor="endDate">End Date</Label>
+                <Input
+                  id="endDate"
+                  type="date"
+                  value={formData.endDate}
+                  onChange={(e) => handleInputChange("endDate", e.target.value)}
+                  min={formData.startDate || format(new Date(), "yyyy-MM-dd")}
+                  required
+                />
               </div>
             </div>
-          )}
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="contactPhone">Contact Phone</Label>
+                <Input
+                  id="contactPhone"
+                  type="tel"
+                  placeholder="Your phone number"
+                  value={formData.contactPhone}
+                  onChange={(e) => handleInputChange("contactPhone", e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="pickupTime">Preferred Pickup Time</Label>
+                <Input
+                  id="pickupTime"
+                  type="time"
+                  value={formData.pickupTime}
+                  onChange={(e) => handleInputChange("pickupTime", e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="specialRequests">Special Requests (Optional)</Label>
+              <Textarea
+                id="specialRequests"
+                placeholder="Any special requirements or notes..."
+                value={formData.specialRequests}
+                onChange={(e) => handleInputChange("specialRequests", e.target.value)}
+                rows={3}
+              />
+            </div>
+
+            {totalDays > 0 && (
+              <div className=" p-4 rounded-lg space-y-2">
+                <div className="flex justify-between">
+                  <span>Duration:</span>
+                  <span>{totalDays} day{totalDays > 1 ? "s" : ""}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Rate per day:</span>
+                  <span>Rs. {vehicle.pricePerDay.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between font-semibold text-lg border-t pt-2">
+                  <span>Total Amount:</span>
+                  <span className="text-green-600">Rs. {totalAmount.toLocaleString()}</span>
+                </div>
+              </div>
+            )}
 
             <div className="flex gap-3 pt-4">
               <Button
@@ -300,23 +300,23 @@ export function BookingDialog({ vehicle, children }: BookingDialogProps) {
             {/* Booking Summary */}
             <div className="bg-gray-50 p-4 rounded-lg space-y-3">
               <h3 className="font-semibold text-lg">Booking Summary</h3>
-              
+
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div><span className="font-medium">Vehicle:</span></div>
                 <div>{vehicle.brand} {vehicle.model}</div>
-                
+
                 <div><span className="font-medium">Dates:</span></div>
                 <div>{format(new Date(formData.startDate), "MMM dd")} - {format(new Date(formData.endDate), "MMM dd, yyyy")}</div>
-                
+
                 <div><span className="font-medium">Duration:</span></div>
                 <div>{totalDays} day{totalDays > 1 ? 's' : ''}</div>
-                
+
                 <div><span className="font-medium">Pickup Location:</span></div>
                 <div>{vehicle.pickupLocation}</div>
-                
+
                 <div><span className="font-medium">Pickup Time:</span></div>
                 <div>{formData.pickupTime}</div>
-                
+
                 <div><span className="font-medium">Contact:</span></div>
                 <div>{formData.contactPhone}</div>
               </div>
@@ -347,7 +347,7 @@ export function BookingDialog({ vehicle, children }: BookingDialogProps) {
                 </Badge>
               </div>
               <p className="text-sm text-blue-700">
-                You will be redirected to Khalti to complete your payment securely. 
+                You will be redirected to Khalti to complete your payment securely.
                 Your booking will be confirmed only after successful payment.
               </p>
             </div>
@@ -364,7 +364,7 @@ export function BookingDialog({ vehicle, children }: BookingDialogProps) {
               </Button>
               <Button
                 onClick={handlePayment}
-                disabled={loading || paymentStep === 'processing'}
+                disabled={loading}
                 className="flex-1 bg-purple-600 hover:bg-purple-700"
               >
                 {loading ? "Processing..." : "Pay with Khalti"}

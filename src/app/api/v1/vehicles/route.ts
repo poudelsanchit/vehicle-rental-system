@@ -5,10 +5,11 @@ export async function GET() {
   try {
     const currentDate = new Date();
     
-    // First, get all vehicles that are marked as available
+    // First, get all vehicles that are approved and available
     const allVehicles = await prisma.vehicle.findMany({
       where: {
         available: true,
+        verificationStatus: "APPROVED", // Only show approved vehicles
       },
       include: {
         user: {

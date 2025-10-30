@@ -4,6 +4,7 @@ import {
   SidebarMenu, SidebarMenuButton,
   SidebarMenuItem,
 } from "./sidebar";
+import Logo from "./Logo";
 export function SidebarHeaderComponent({
   team,
 }: {
@@ -22,6 +23,7 @@ export function SidebarHeaderComponent({
         >
           <div className="bg-primary text-secondary  flex aspect-square size-8 items-center justify-center rounded-lg">
             <team.logo className="size-4 " />
+            <Logo />
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight">
             <span className="truncate font-medium text-foreground">{team.name}</span>

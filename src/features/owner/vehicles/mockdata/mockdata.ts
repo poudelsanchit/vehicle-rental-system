@@ -36,7 +36,7 @@ export const vehicleMockData: IVehicle[] = [
     fuelType: "Petrol",
     color: "Black",
     seatingCapacity: 5,
-    pricePerDay: 5000,
+    pricePerDay: 500,
     available: false,
     pickupLocation: "Kathmandu, Nepal",
     vehicleFrontPhoto: "/default.jpg",
