@@ -47,6 +47,12 @@ export async function GET() {
             },
           },
         },
+        feedback: {
+          select: {
+            id: true,
+            overallRating: true,
+          },
+        },
       },
       orderBy: { createdAt: "desc" },
     });
@@ -90,6 +96,7 @@ export async function POST(request: NextRequest) {
       endDate,
       contactPhone,
       pickupTime,
+      pickupLocation,
       specialRequests,
       totalAmount,
       totalDays,
@@ -177,6 +184,7 @@ export async function POST(request: NextRequest) {
         status: "PENDING",
         contactPhone,
         pickupTime,
+        pickupLocation: pickupLocation || null,
         specialRequests: specialRequests || null,
       },
       include: {

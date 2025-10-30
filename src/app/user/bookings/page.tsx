@@ -25,6 +25,8 @@ import {
   AlertDialogTrigger,
 } from "@/features/core/components/alert-dialog";
 import { toast } from "sonner";
+import { FeedbackDialog } from "@/features/core/components/feedback-dialog";
+import { Star } from "lucide-react";
 
 interface Booking {
   id: string;
@@ -37,6 +39,11 @@ interface Booking {
   pickupTime: string;
   specialRequests?: string;
   createdAt: string;
+  pickupLocation: string;
+  feedback?: {
+    id: string;
+    overallRating: number;
+  };
   vehicle: {
     id: string;
     title: string;
@@ -216,7 +223,7 @@ export default function BookingPage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 text-sm">
                     <div>
                       <span className="font-medium text-gray-500">Pickup Location:</span>
-                      <p>{booking.vehicle.pickupLocation}</p>
+                      <p>{booking.pickupLocation}</p>
                     </div>
                     <div>
                       <span className="font-medium text-gray-500">Pickup Time:</span>
@@ -241,36 +248,57 @@ export default function BookingPage() {
                       <p>Owner: {booking.vehicle.user.username}</p>
                     </div>
                     
-                    {(booking.status === "PENDING" || booking.status === "CONFIRMED") && (
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button 
-                            variant="destructive" 
-                            size="sm"
-                            disabled={cancellingId === booking.id}
-                          >
-                            {cancellingId === booking.id ? "Cancelling..." : "Cancel Booking"}
+                    <div className="flex gap-2">
+                      {booking.status === "COMPLETED" && !booking.feedback && (
+                        <FeedbackDialog 
+                          booking={booking} 
+                          onFeedbackSubmitted={fetchBookings}
+                        >
+                          <Button size="sm" variant="outline">
+                            <Star className="h-4 w-4 mr-1" />
+                            Rate Experience
                           </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Cancel Booking</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Are you sure you want to cancel this booking? This action cannot be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Keep Booking</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleCancelBooking(booking.id)}
-                              className="bg-red-600 hover:bg-red-700"
+                        </FeedbackDialog>
+                      )}
+                      
+                      {booking.status === "COMPLETED" && booking.feedback && (
+                        <div className="flex items-center gap-1 text-sm text-gray-600">
+                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                          <span>Rated {booking.feedback.overallRating}/5</span>
+                        </div>
+                      )}
+
+                      {(booking.status === "PENDING" || booking.status === "CONFIRMED") && (
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button 
+                              variant="destructive" 
+                              size="sm"
+                              disabled={cancellingId === booking.id}
                             >
-                              Cancel Booking
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    )}
+                              {cancellingId === booking.id ? "Cancelling..." : "Cancel Booking"}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Cancel Booking</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to cancel this booking? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Keep Booking</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleCancelBooking(booking.id)}
+                                className="bg-red-600 hover:bg-red-700"
+                              >
+                                Cancel Booking
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

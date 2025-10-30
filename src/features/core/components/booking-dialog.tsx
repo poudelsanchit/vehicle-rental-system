@@ -40,6 +40,7 @@ export function BookingDialog({ vehicle, children }: BookingDialogProps) {
     endDate: "",
     contactPhone: "",
     pickupTime: "",
+    pickupLocation: "",
     specialRequests: "",
   });
 
@@ -76,6 +77,7 @@ export function BookingDialog({ vehicle, children }: BookingDialogProps) {
         endDate: formData.endDate,
         contactPhone: formData.contactPhone,
         pickupTime: formData.pickupTime,
+        pickupLocation: formData.pickupLocation,
         specialRequests: formData.specialRequests,
         totalAmount,
         totalDays,
@@ -104,6 +106,7 @@ export function BookingDialog({ vehicle, children }: BookingDialogProps) {
         endDate: "",
         contactPhone: "",
         pickupTime: "",
+        pickupLocation: "",
         specialRequests: "",
       });
       setOpen(false);
@@ -123,6 +126,7 @@ export function BookingDialog({ vehicle, children }: BookingDialogProps) {
       endDate: "",
       contactPhone: "",
       pickupTime: "",
+      pickupLocation: "",
       specialRequests: "",
     });
     setOpen(false);
@@ -200,6 +204,19 @@ export function BookingDialog({ vehicle, children }: BookingDialogProps) {
                   required
                 />
               </div>
+            </div>
+
+            <div>
+              <Label htmlFor="pickupLocation">Pickup Location (Optional)</Label>
+              <Input
+                id="pickupLocation"
+                placeholder={`Leave empty to use default: ${vehicle.pickupLocation}`}
+                value={formData.pickupLocation}
+                onChange={(e) => handleInputChange("pickupLocation", e.target.value)}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Default location: {vehicle.pickupLocation}
+              </p>
             </div>
 
             <div>

@@ -139,12 +139,16 @@ model Booking {
   // Contact Info
   contactPhone String
   pickupTime   String
+  pickupLocation String? // User's preferred pickup location
   
   // Additional Info
   specialRequests String?
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Relations
+  feedback Feedback?
 
   @@index([userId])
   @@index([vehicleId])
@@ -218,4 +222,32 @@ enum PaymentStatus {
 enum VehicleCategory {
   TWO_WHEELER
   FOUR_WHEELER
+}
+
+model Feedback {
+  id        String @id @default(uuid())
+  bookingId String @unique
+  userId    String
+  vehicleId String
+  
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  
+  // Rating (1-5 stars)
+  vehicleRating  Int // Rating for the vehicle condition, cleanliness, etc.
+  serviceRating  Int // Rating for the overall service experience
+  overallRating  Int // Overall experience rating
+  
+  // Written feedback
+  vehicleReview String? // Review about the vehicle
+  serviceReview String? // Review about the service
+  
+  // Feedback categories
+  wouldRecommend Boolean @default(false)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([vehicleId])
+  @@index([overallRating])
 }
