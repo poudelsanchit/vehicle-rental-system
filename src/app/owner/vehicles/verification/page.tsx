@@ -193,8 +193,8 @@ export default function VehicleVerification() {
                   )}
 
                 {vehicle.verificationStatus === "APPROVED" && (
-                  <div className="p-3 bg-green-50 border border-green-200 rounded-md">
-                    <p className="text-sm text-green-800">
+                  <div className="p-3  border text-white rounded-md">
+                    <p className="text-sm ">
                       🎉 Congratulations! Your vehicle has been approved and is now available for booking.
                     </p>
                   </div>

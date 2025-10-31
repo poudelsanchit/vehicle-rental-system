@@ -127,7 +127,7 @@ export default function BookingsPage() {
             <div className="min-h-screen py-2">
                 <div className="text-center">
                     <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
-                    <p className="text-gray-600">{error}</p>
+                    <p className="text-gray-200">{error}</p>
                 </div>
             </div>
         );
@@ -148,37 +148,37 @@ export default function BookingsPage() {
                     </div>
                 </div>
             </div>
-            
+
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
                 <Card>
                     <CardContent className="p-4">
                         <div className="text-2xl font-bold">{statusCounts.total}</div>
-                        <p className="text-sm text-gray-600">Total Bookings</p>
+                        <p className="text-sm text-gray-200">Total Bookings</p>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardContent className="p-4">
                         <div className="text-2xl font-bold text-yellow-600">{statusCounts.pending}</div>
-                        <p className="text-sm text-gray-600">Pending</p>
+                        <p className="text-sm text-gray-200">Pending</p>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardContent className="p-4">
                         <div className="text-2xl font-bold text-green-600">{statusCounts.confirmed}</div>
-                        <p className="text-sm text-gray-600">Confirmed</p>
+                        <p className="text-sm text-gray-200">Confirmed</p>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardContent className="p-4">
                         <div className="text-2xl font-bold text-blue-600">{statusCounts.completed}</div>
-                        <p className="text-sm text-gray-600">Completed</p>
+                        <p className="text-sm text-gray-200">Completed</p>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardContent className="p-4">
                         <div className="text-2xl font-bold text-red-600">{statusCounts.cancelled}</div>
-                        <p className="text-sm text-gray-600">Cancelled</p>
+                        <p className="text-sm text-gray-200">Cancelled</p>
                     </CardContent>
                 </Card>
             </div>
@@ -186,15 +186,15 @@ export default function BookingsPage() {
             <Card>
                 <CardContent>
                     <div className="mb-4 flex items-center gap-4">
-                        <Badge variant="outline" className="text-sm">
+                        <Badge variant="outline" className="text-sm ">
                             Total Bookings: {statusCounts.total}
                         </Badge>
                         <Badge variant="outline" className="text-sm bg-yellow-50 text-yellow-700">
                             Pending: {statusCounts.pending}
                         </Badge>
                     </div>
-                    <BookingsTable 
-                        bookings={bookings} 
+                    <BookingsTable
+                        bookings={bookings}
                         onStatusUpdate={handleStatusUpdate}
                     />
                 </CardContent>

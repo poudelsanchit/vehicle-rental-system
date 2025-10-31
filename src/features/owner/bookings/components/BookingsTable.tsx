@@ -206,7 +206,11 @@ const createColumns = (onStatusUpdate?: (bookingId: string, status: string) => v
                                     ? "outline"
                                     : "destructive"
                     }
-                    className="capitalize"
+                    className={`capitalize ${
+                        status === "COMPLETED" 
+                            ? "bg-blue-100 text-blue-800 border-blue-300" 
+                            : ""
+                    }`}
                 >
                     {status.toLowerCase()}
                 </Badge>
@@ -219,6 +223,7 @@ const createColumns = (onStatusUpdate?: (bookingId: string, status: string) => v
         cell: ({ row }) => {
             const booking = row.original
             const isPending = booking.status === "PENDING"
+            const isConfirmed = booking.status === "CONFIRMED"
 
             return (
                 <DropdownMenu>
@@ -249,6 +254,17 @@ const createColumns = (onStatusUpdate?: (bookingId: string, status: string) => v
                                     className="text-red-600"
                                 >
                                     Reject Booking
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                            </>
+                        )}
+                        {isConfirmed && onStatusUpdate && (
+                            <>
+                                <DropdownMenuItem
+                                    onClick={() => onStatusUpdate(booking.id, "COMPLETED")}
+                                    className="text-blue-600"
+                                >
+                                    Mark as Completed
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                             </>

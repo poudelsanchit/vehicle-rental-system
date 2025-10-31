@@ -187,7 +187,7 @@ export default function BookingPage() {
                     sizes="(max-width: 768px) 100vw, 200px"
                   />
                 </div>
-                
+
                 <div className="flex-1 p-6">
                   <div className="flex justify-between items-start mb-4">
                     <div>
@@ -247,11 +247,11 @@ export default function BookingPage() {
                       <p>Booked on: {format(new Date(booking.createdAt), "MMM dd, yyyy 'at' HH:mm")}</p>
                       <p>Owner: {booking.vehicle.user.username}</p>
                     </div>
-                    
+
                     <div className="flex gap-2">
                       {booking.status === "COMPLETED" && !booking.feedback && (
-                        <FeedbackDialog 
-                          booking={booking} 
+                        <FeedbackDialog
+                          booking={booking}
                           onFeedbackSubmitted={fetchBookings}
                         >
                           <Button size="sm" variant="outline">
@@ -260,7 +260,7 @@ export default function BookingPage() {
                           </Button>
                         </FeedbackDialog>
                       )}
-                      
+
                       {booking.status === "COMPLETED" && booking.feedback && (
                         <div className="flex items-center gap-1 text-sm text-gray-600">
                           <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
@@ -271,8 +271,8 @@ export default function BookingPage() {
                       {(booking.status === "PENDING" || booking.status === "CONFIRMED") && (
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button 
-                              variant="destructive" 
+                            <Button
+                              variant="destructive"
                               size="sm"
                               disabled={cancellingId === booking.id}
                             >

@@ -71,7 +71,7 @@ export function FeedbackDialog({ booking, children, onFeedbackSubmitted }: Feedb
       }
 
       toast.success("Thank you for your feedback!");
-      
+
       // Reset form and close dialog
       setFormData({
         vehicleRating: 0,
@@ -82,7 +82,7 @@ export function FeedbackDialog({ booking, children, onFeedbackSubmitted }: Feedb
         wouldRecommend: false,
       });
       setOpen(false);
-      
+
       if (onFeedbackSubmitted) {
         onFeedbackSubmitted();
       }
@@ -107,13 +107,13 @@ export function FeedbackDialog({ booking, children, onFeedbackSubmitted }: Feedb
     setOpen(false);
   };
 
-  const StarRating = ({ 
-    rating, 
-    onRatingChange, 
-    label 
-  }: { 
-    rating: number; 
-    onRatingChange: (rating: number) => void; 
+  const StarRating = ({
+    rating,
+    onRatingChange,
+    label
+  }: {
+    rating: number;
+    onRatingChange: (rating: number) => void;
     label: string;
   }) => (
     <div className="space-y-2">
@@ -127,11 +127,10 @@ export function FeedbackDialog({ booking, children, onFeedbackSubmitted }: Feedb
             className="focus:outline-none"
           >
             <Star
-              className={`h-6 w-6 ${
-                star <= rating
-                  ? "fill-yellow-400 text-yellow-400"
-                  : "text-gray-300"
-              }`}
+              className={`h-6 w-6 ${star <= rating
+                ? "fill-yellow-400 text-yellow-400"
+                : "text-gray-300"
+                }`}
             />
           </button>
         ))}
@@ -203,7 +202,7 @@ export function FeedbackDialog({ booking, children, onFeedbackSubmitted }: Feedb
             <Checkbox
               id="wouldRecommend"
               checked={formData.wouldRecommend}
-              onCheckedChange={(checked) => 
+              onCheckedChange={(checked) =>
                 setFormData(prev => ({ ...prev, wouldRecommend: checked as boolean }))
               }
             />
