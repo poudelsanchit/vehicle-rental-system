@@ -85,7 +85,7 @@ export async function POST(
     
     if (isTestMode) {
       // Use Khalti's recommended test amount
-      amountInPaisa = 100000; // NPR 1000 in paisa (common test amount)
+      amountInPaisa = 50000; // NPR 1000 in paisa (common test amount)
     } else {
       amountInPaisa = Math.round(vehicle.verificationFee * 100);
     }
