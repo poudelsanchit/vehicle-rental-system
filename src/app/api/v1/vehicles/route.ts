@@ -87,9 +87,20 @@ export async function GET(request: NextRequest) {
 
     // Filter vehicles based on date availability
     const availableVehicles = allVehicles.filter(vehicle => {
-      // If no date range specified, just check for active bookings
+      // If no date range specified, check if vehicle is currently available (not booked for today)
       if (!startDate || !endDate) {
-        return vehicle.bookings.length === 0;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Start of today
+        
+        const hasCurrentBooking = vehicle.bookings.some(booking => {
+          const bookingStart = new Date(booking.startDate);
+          const bookingEnd = new Date(booking.endDate);
+          
+          // Check if today falls within any booking period
+          return bookingStart <= today && bookingEnd > today;
+        });
+        
+        return !hasCurrentBooking;
       }
 
       // Check if vehicle is available for the specified date range
