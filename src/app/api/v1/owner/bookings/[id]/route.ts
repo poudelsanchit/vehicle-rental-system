@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/features/core/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/features/core/lib/auth";
+import { sendBookingConfirmationEmail } from "@/features/core/lib/email";
+import { format } from "date-fns";
 
 // PATCH - Update booking status (accept/reject)
 export async function PATCH(
@@ -110,10 +112,39 @@ export async function PATCH(
             registrationNumber: true,
             pricePerDay: true,
             vehicleFrontPhoto: true,
+            pickupLocation: true,
+            user: {
+              select: {
+                username: true,
+                email: true,
+              },
+            },
           },
         },
       },
     });
+
+    // Send email notification if booking is confirmed
+    if (status === "CONFIRMED") {
+      try {
+        await sendBookingConfirmationEmail({
+          to: updatedBooking.user.email,
+          userName: updatedBooking.user.username,
+          vehicleName: updatedBooking.vehicle.title,
+          vehicleBrand: updatedBooking.vehicle.brand,
+          vehicleModel: updatedBooking.vehicle.model,
+          startDate: format(new Date(updatedBooking.startDate), "PPP"),
+          endDate: format(new Date(updatedBooking.endDate), "PPP"),
+          totalAmount: updatedBooking.totalAmount,
+          pickupLocation: updatedBooking.vehicle.pickupLocation,
+          ownerName: updatedBooking.vehicle.user.username,
+          ownerEmail: updatedBooking.vehicle.user.email,
+        });
+      } catch (emailError) {
+        console.error("Failed to send confirmation email:", emailError);
+        // Don't fail the request if email fails
+      }
+    }
 
     return NextResponse.json(updatedBooking);
   } catch (error) {

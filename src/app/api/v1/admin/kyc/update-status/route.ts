@@ -1,5 +1,6 @@
 import { prisma } from "@/features/core/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { sendKYCApprovedEmail, sendKYCRejectedEmail } from "@/features/core/lib/email";
 
 // Types
 type KYCStatus = "PENDING" | "APPROVED" | "REJECTED";
@@ -77,6 +78,27 @@ export async function PATCH(request: NextRequest) {
         where: { id: existingKYC.userId },
         data: { isVerified: false },
       });
+    }
+
+    // Send email notifications based on status
+    try {
+      if (status === "APPROVED") {
+        await sendKYCApprovedEmail({
+          to: existingKYC.user.email,
+          userName: existingKYC.user.username,
+          fullName: existingKYC.fullName,
+        });
+      } else if (status === "REJECTED" && rejectionReason) {
+        await sendKYCRejectedEmail({
+          to: existingKYC.user.email,
+          userName: existingKYC.user.username,
+          fullName: existingKYC.fullName,
+          rejectionReason: rejectionReason,
+        });
+      }
+    } catch (emailError) {
+      console.error("Failed to send KYC status email:", emailError);
+      // Don't fail the request if email fails
     }
 
     return NextResponse.json(
