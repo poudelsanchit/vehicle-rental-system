@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/features/core/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/features/core/lib/auth";
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,6 +16,48 @@ export async function GET(request: NextRequest) {
     const location = searchParams.get("location") || "";
 
     const currentDate = new Date();
+    
+    // Get user session for personalized recommendations
+    const session = await getServerSession(authOptions);
+    let userPreferredCategory: string | null = null;
+    
+    if (session?.user?.email) {
+      const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+        include: {
+          bookings: {
+            where: {
+              status: {
+                in: ["CONFIRMED", "COMPLETED"],
+              },
+            },
+            include: {
+              vehicle: {
+                select: {
+                  category: true,
+                },
+              },
+            },
+          },
+        },
+      });
+      
+      // Determine user's preferred category based on booking history
+      if (user && user.bookings.length > 0) {
+        const categoryCount: Record<string, number> = {};
+        
+        user.bookings.forEach(booking => {
+          const cat = booking.vehicle.category;
+          categoryCount[cat] = (categoryCount[cat] || 0) + 1;
+        });
+        
+        // Get the most booked category
+        const sortedCategories = Object.entries(categoryCount).sort((a, b) => b[1] - a[1]);
+        if (sortedCategories.length > 0) {
+          userPreferredCategory = sortedCategories[0][0];
+        }
+      }
+    }
     
     // Build where clause for filtering
     const whereClause: any = {
@@ -53,7 +97,7 @@ export async function GET(request: NextRequest) {
       whereClause.pickupLocation = { contains: location, mode: "insensitive" };
     }
 
-    // Get all vehicles matching the filters
+    // Get all vehicles matching the filters with feedback data
     const allVehicles = await prisma.vehicle.findMany({
       where: whereClause,
       include: {
@@ -79,9 +123,6 @@ export async function GET(request: NextRequest) {
             status: true,
           },
         },
-      },
-      orderBy: {
-        createdAt: "desc",
       },
     });
 
@@ -121,10 +162,76 @@ export async function GET(request: NextRequest) {
       return !hasConflict;
     });
 
-    // Remove the bookings data from the response
-    const vehiclesResponse = availableVehicles.map(vehicle => {
+    // Get feedback ratings for all available vehicles
+    const vehicleIds = availableVehicles.map(v => v.id);
+    const feedbackData = await prisma.feedback.groupBy({
+      by: ['vehicleId'],
+      where: {
+        vehicleId: {
+          in: vehicleIds,
+        },
+      },
+      _avg: {
+        overallRating: true,
+      },
+      _count: {
+        id: true,
+      },
+    });
+    
+    // Create a map of vehicle ratings
+    const ratingsMap = new Map(
+      feedbackData.map(f => [
+        f.vehicleId,
+        {
+          avgRating: f._avg.overallRating || 0,
+          ratingCount: f._count.id,
+        },
+      ])
+    );
+    
+    // Sort vehicles based on recommendation logic
+    const sortedVehicles = availableVehicles.sort((a, b) => {
+      // 1. Prioritize user's preferred category
+      if (userPreferredCategory) {
+        const aMatchesPreference = a.category === userPreferredCategory ? 1 : 0;
+        const bMatchesPreference = b.category === userPreferredCategory ? 1 : 0;
+        
+        if (aMatchesPreference !== bMatchesPreference) {
+          return bMatchesPreference - aMatchesPreference;
+        }
+      }
+      
+      // 2. Sort by average rating (higher is better)
+      const aRating = ratingsMap.get(a.id)?.avgRating || 0;
+      const bRating = ratingsMap.get(b.id)?.avgRating || 0;
+      
+      if (aRating !== bRating) {
+        return bRating - aRating;
+      }
+      
+      // 3. Sort by number of ratings (more reviews = more popular)
+      const aCount = ratingsMap.get(a.id)?.ratingCount || 0;
+      const bCount = ratingsMap.get(b.id)?.ratingCount || 0;
+      
+      if (aCount !== bCount) {
+        return bCount - aCount;
+      }
+      
+      // 4. Finally, sort by creation date (newest first)
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+    
+    // Remove the bookings data and add rating info to the response
+    const vehiclesResponse = sortedVehicles.map(vehicle => {
       const { bookings, ...vehicleData } = vehicle;
-      return vehicleData;
+      const ratingInfo = ratingsMap.get(vehicle.id);
+      
+      return {
+        ...vehicleData,
+        avgRating: ratingInfo?.avgRating || 0,
+        ratingCount: ratingInfo?.ratingCount || 0,
+      };
     });
 
     return NextResponse.json(vehiclesResponse);
